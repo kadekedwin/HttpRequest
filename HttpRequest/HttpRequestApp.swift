@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct HttpRequestApp: App {
     let persistenceController = PersistenceController.shared
-
+    let linkViewModel = LinkViewModel(viewContext: PersistenceController.preview.container.viewContext)
+    
     var body: some Scene {
         WindowGroup {
             HomeView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environmentObject(linkViewModel)
         }
     }
 }

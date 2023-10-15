@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E80871342ADB9F0200E66660 /* LinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80871332ADB9F0200E66660 /* LinkViewModel.swift */; };
+		E80871362ADB9F1000E66660 /* LinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80871352ADB9F1000E66660 /* LinkView.swift */; };
 		E8BB70902ADAE15B005385D4 /* HttpRequestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BB708F2ADAE15B005385D4 /* HttpRequestApp.swift */; };
-		E8BB70922ADAE15B005385D4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BB70912ADAE15B005385D4 /* ContentView.swift */; };
 		E8BB70942ADAE15C005385D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8BB70932ADAE15C005385D4 /* Assets.xcassets */; };
 		E8BB70972ADAE15C005385D4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8BB70962ADAE15C005385D4 /* Preview Assets.xcassets */; };
 		E8BB70992ADAE15C005385D4 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BB70982ADAE15C005385D4 /* Persistence.swift */; };
@@ -17,9 +18,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E80871332ADB9F0200E66660 /* LinkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkViewModel.swift; sourceTree = "<group>"; };
+		E80871352ADB9F1000E66660 /* LinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkView.swift; sourceTree = "<group>"; };
 		E8BB708C2ADAE15B005385D4 /* HttpRequest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HttpRequest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8BB708F2ADAE15B005385D4 /* HttpRequestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpRequestApp.swift; sourceTree = "<group>"; };
-		E8BB70912ADAE15B005385D4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E8BB70932ADAE15C005385D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E8BB70962ADAE15C005385D4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E8BB70982ADAE15C005385D4 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -38,6 +40,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E80871372ADB9F9D00E66660 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E8BB70A22ADAE1D1005385D4 /* HomeView.swift */,
+				E80871352ADB9F1000E66660 /* LinkView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E80871392ADB9FB000E66660 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E8BB70982ADAE15C005385D4 /* Persistence.swift */,
+				E80871332ADB9F0200E66660 /* LinkViewModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		E8BB70832ADAE15B005385D4 = {
 			isa = PBXGroup;
 			children = (
@@ -58,10 +78,9 @@
 			isa = PBXGroup;
 			children = (
 				E8BB708F2ADAE15B005385D4 /* HttpRequestApp.swift */,
-				E8BB70912ADAE15B005385D4 /* ContentView.swift */,
-				E8BB70A22ADAE1D1005385D4 /* HomeView.swift */,
+				E80871392ADB9FB000E66660 /* Models */,
+				E80871372ADB9F9D00E66660 /* Views */,
 				E8BB70932ADAE15C005385D4 /* Assets.xcassets */,
-				E8BB70982ADAE15C005385D4 /* Persistence.swift */,
 				E8BB709A2ADAE15C005385D4 /* HttpRequest.xcdatamodeld */,
 				E8BB70952ADAE15C005385D4 /* Preview Content */,
 			);
@@ -148,8 +167,9 @@
 			files = (
 				E8BB70992ADAE15C005385D4 /* Persistence.swift in Sources */,
 				E8BB709C2ADAE15C005385D4 /* HttpRequest.xcdatamodeld in Sources */,
-				E8BB70922ADAE15B005385D4 /* ContentView.swift in Sources */,
+				E80871342ADB9F0200E66660 /* LinkViewModel.swift in Sources */,
 				E8BB70A32ADAE1D1005385D4 /* HomeView.swift in Sources */,
+				E80871362ADB9F1000E66660 /* LinkView.swift in Sources */,
 				E8BB70902ADAE15B005385D4 /* HttpRequestApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -292,6 +312,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -321,6 +342,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

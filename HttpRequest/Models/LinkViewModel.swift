@@ -27,9 +27,45 @@ class LinkViewModel: ObservableObject {
         }
     }
     
-    func addLink(linkURL: String) {
+    func fetchWeb(linkUrl: String) async -> String? {
+        let url = URL(string: linkUrl)
         
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url!)
+            return String(data: data, encoding: .utf8)!
+        } catch {
+            print("Failed to fetch data")
+            return nil
+        }
+    }
+    
+//    func fetchWebb(linkUrl: String, result: ((String) -> (Void))?) {
+//        let url = URL(string: linkUrl)
+//        
+//        let task = URLSession.shared.dataTask(with: url!) { 
+//            (data, response, error) in
+//            
+//            if let error = error {
+//                print("Error: \(error)")
+//                return
+//            }
+//
+//            if let data = data {
+//                result!(String(data: data, encoding: .utf8)!)
+//            }
+//        }
+//        task.resume()
+//    }
+    
+    func addLink(linkURL: String) async {
+        let webData = await fetchWeb(linkUrl: linkURL)
         
+        if(webData == nil) {
+            print("invalid link!")
+            return
+        }
+        
+        print(webData)
         
         let newLink = Links(context: viewContext)
         newLink.timestamp = Date()
@@ -44,5 +80,7 @@ class LinkViewModel: ObservableObject {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
+        
+        print("url saved")
     }
 }

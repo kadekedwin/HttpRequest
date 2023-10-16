@@ -45,7 +45,10 @@ struct LinkView: View {
         .overlay {
             ZStack {
                 Button {
-                    linkViewModel.addLink(linkURL: "https://google.com")
+                    Task {
+                        await linkViewModel.addLink(linkURL: "https://www.google.com")
+                    }
+                    
                 } label: {
                     RoundedRectangle(cornerRadius: 12)
                         .foregroundStyle(.gray)

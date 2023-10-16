@@ -18,7 +18,7 @@ struct LinkView: View {
             VStack(spacing: 24) {
                 ForEach(linkViewModel.links, id: \.self) { link in
                     HStack{
-                        Image(uiImage: UIImage(data: link.thumbnail!)!)
+                        Image(uiImage: UIImage(data: (link.thumbnail ?? UIImage(named: "test2")?.pngData())!)!)
                             .resizable()
                             .scaledToFill()
                             .clipped()
@@ -45,11 +45,12 @@ struct LinkView: View {
             }
             
         }
+        .frame(maxWidth: .infinity)
         .overlay {
             ZStack {
                 HStack {
                     HStack {
-                        TextField("link", text: $inputLink)
+                        TextField("Link", text: $inputLink)
                             .focused($inputLinkFocused, equals: true)
                             .onSubmit {
                                 
@@ -67,7 +68,7 @@ struct LinkView: View {
                     Button {
                         Task {
                             if(inputLink != "") {
-                                await linkViewModel.addLink(linkURL: inputLink)
+                                await linkViewModel.addLink(stringUrl: inputLink)
                             } else {
                                 inputLinkFocused = true
                             }

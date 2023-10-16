@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+import SwiftSoup
 
 class LinkViewModel: ObservableObject {
     private var viewContext: NSManagedObjectContext
@@ -27,11 +28,59 @@ class LinkViewModel: ObservableObject {
         }
     }
     
-    func fetchWeb(linkUrl: String) async -> String? {
-        let url = URL(string: linkUrl)
+    func saveLink(url: URL, title: String, description: String) {
+        let newLink = Links(context: viewContext)
+        newLink.timestamp = Date()
+        newLink.url = url
+        newLink.title = title
+        newLink.desc = description
+//        newLink.thumbnail = UIImage(named: "test2")?.pngData()
         
         do {
-            let (data, _) = try await URLSession.shared.data(from: url!)
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
+        
+    }
+    
+    func addLink(stringUrl: String) async {
+        let url = URL(string: stringUrl)
+        let webData = await fetchWeb(url: url!)
+        
+        if(webData == nil) {
+            print("invalid link!")
+            return
+        }
+        
+        var webTitle: String?
+        var webDescription: String?
+//        var webThumbnail: UIImage
+        
+        do {
+            let html: Document = try SwiftSoup.parse(webData!)
+            let htmlMetaDescription = try html.head()!.select("meta[name=og:description]").first() ?? html.head()!.select("meta[name=twitter:description]").first() ?? html.head()!.select("meta[property=twitter:description]").first() ?? html.head()!.select("meta[name=description]").first() ?? html.head()!.select("meta[itemprop=description]").first() ?? nil
+            
+            webTitle = try html.title()
+            if(htmlMetaDescription != nil) {
+                webDescription = try htmlMetaDescription!.attr("content")
+            } else {
+                webDescription = "no description!"
+            }
+            
+        } catch Exception.Error(let type, let message) {
+            print(message)
+        } catch {
+            print("error")
+        }
+        
+        saveLink(url: url!, title: webTitle!, description: webDescription!)
+    }
+    
+    func fetchWeb(url: URL) async -> String? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
             return String(data: data, encoding: .utf8)!
         } catch {
             print("Failed to fetch data")
@@ -41,10 +90,10 @@ class LinkViewModel: ObservableObject {
     
 //    func fetchWebb(linkUrl: String, result: ((String) -> (Void))?) {
 //        let url = URL(string: linkUrl)
-//        
-//        let task = URLSession.shared.dataTask(with: url!) { 
+//
+//        let task = URLSession.shared.dataTask(with: url!) {
 //            (data, response, error) in
-//            
+//
 //            if let error = error {
 //                print("Error: \(error)")
 //                return
@@ -57,30 +106,4 @@ class LinkViewModel: ObservableObject {
 //        task.resume()
 //    }
     
-    func addLink(linkURL: String) async {
-        let webData = await fetchWeb(linkUrl: linkURL)
-        
-        if(webData == nil) {
-            print("invalid link!")
-            return
-        }
-        
-        print(webData)
-        
-        let newLink = Links(context: viewContext)
-        newLink.timestamp = Date()
-        newLink.url = URL(string: linkURL)
-//        newLink.title = "test"
-//        newLink.desc = "test two gaf ag gnaeo agwiera wog awg awgawg w agriogahg aweorhawgerihoghaweo a owg awaw oghi"
-//        newLink.thumbnail = UIImage(named: "test2")?.pngData()
-        
-        do {
-            try viewContext.save()
-        } catch {
-            let nsError = error as NSError
-            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-        }
-        
-        print("url saved")
-    }
 }

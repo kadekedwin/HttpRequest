@@ -10,6 +10,9 @@ import SwiftUI
 struct LinkView: View {
     @EnvironmentObject var linkViewModel: LinkViewModel
     
+    @State private var inputLink: String = ""
+    @FocusState private var inputLinkFocused: Bool?
+    
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
@@ -44,25 +47,46 @@ struct LinkView: View {
         }
         .overlay {
             ZStack {
-                Button {
-                    Task {
-                        await linkViewModel.addLink(linkURL: "https://www.google.com")
+                HStack {
+                    HStack {
+                        TextField("link", text: $inputLink)
+                            .focused($inputLinkFocused, equals: true)
+                            .onSubmit {
+                                
+                            }
+                            .textInputAutocapitalization(.never)
+                            .disableAutocorrection(true)
+                            .padding()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(inputLinkFocused == true ? .primary : .secondary, lineWidth: 2)
+                            )
                     }
+                    .textFieldStyle(DefaultTextFieldStyle())
                     
-                } label: {
-                    RoundedRectangle(cornerRadius: 12)
-                        .foregroundStyle(.gray)
-                        .frame(height: 60)
-                        .overlay {
-                            Image(systemName: "plus")
-                                .foregroundStyle(.white)
-                                .font(.system(size: 24))
-                                .bold()
+                    Button {
+                        Task {
+                            if(inputLink != "") {
+                                await linkViewModel.addLink(linkURL: inputLink)
+                            } else {
+                                inputLinkFocused = true
+                            }
                         }
-                        .padding()
+                    } label: {
+                        Circle()
+                            .frame(width: 56)
+                            .foregroundStyle(.blue)
+                            .overlay {
+                                Image(systemName: "plus")
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 24))
+                                    .bold()
+                            }
+                    }
                 }
             }
             .frame(maxHeight: .infinity, alignment: .bottom)
+            .padding()
         }
     }
 }

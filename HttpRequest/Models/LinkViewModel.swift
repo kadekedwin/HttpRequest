@@ -28,13 +28,13 @@ class LinkViewModel: ObservableObject {
         }
     }
     
-    func saveLink(url: URL, title: String, description: String) {
+    func saveLink(url: URL, title: String?, description: String?, thumbnail: Data?) {
         let newLink = Links(context: viewContext)
         newLink.timestamp = Date()
         newLink.url = url
         newLink.title = title
         newLink.desc = description
-//        newLink.thumbnail = UIImage(named: "test2")?.pngData()
+        newLink.thumbnail = thumbnail
         
         do {
             try viewContext.save()
@@ -43,39 +43,6 @@ class LinkViewModel: ObservableObject {
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
         
-    }
-    
-    func addLink(stringUrl: String) async {
-        let url = URL(string: stringUrl)
-        let webData = await fetchWeb(url: url!)
-        
-        if(webData == nil) {
-            print("invalid link!")
-            return
-        }
-        
-        var webTitle: String?
-        var webDescription: String?
-//        var webThumbnail: UIImage
-        
-        do {
-            let html: Document = try SwiftSoup.parse(webData!)
-            let htmlMetaDescription = try html.head()!.select("meta[name=og:description]").first() ?? html.head()!.select("meta[name=twitter:description]").first() ?? html.head()!.select("meta[property=twitter:description]").first() ?? html.head()!.select("meta[name=description]").first() ?? html.head()!.select("meta[itemprop=description]").first() ?? nil
-            
-            webTitle = try html.title()
-            if(htmlMetaDescription != nil) {
-                webDescription = try htmlMetaDescription!.attr("content")
-            } else {
-                webDescription = "no description!"
-            }
-            
-        } catch Exception.Error(let type, let message) {
-            print(message)
-        } catch {
-            print("error")
-        }
-        
-        saveLink(url: url!, title: webTitle!, description: webDescription!)
     }
     
     func fetchWeb(url: URL) async -> String? {
@@ -105,5 +72,63 @@ class LinkViewModel: ObservableObject {
 //        }
 //        task.resume()
 //    }
+    
+    func addLink(stringUrl: String) async {
+        let url = URL(string: stringUrl)
+        let webData = await fetchWeb(url: url!)
+        
+        if(webData == nil) {
+            print("invalid link!")
+            return
+        }
+        
+        var webTitle: String?
+        var webDescription: String?
+        var webThumbnail: Data?
+        
+        do {
+            let html: Document = try SwiftSoup.parse(webData!)
+            
+            let htmlMetaTitle = try html.head()!.select("meta[property=og:title]").first() ?? html.head()!.select("meta[name=twitter:title]").first() ?? html.head()!.select("meta[property=twitter:title]").first() ?? nil
+            let htmlMetaDescription = try html.head()!.select("meta[name=og:description]").first() ?? html.head()!.select("meta[name=twitter:description]").first() ?? html.head()!.select("meta[property=twitter:description]").first() ?? html.head()!.select("meta[name=description]").first() ?? html.head()!.select("meta[itemprop=description]").first() ?? nil
+            let htmlMetaThumbnail = try /*html.head()!.select("meta[property=og:image:secure_url]").first() ?? html.head()!.select("meta[property=og:image:url]").first() ?? html.head()!.select("meta[property=og:image]").first() ?? html.head()!.select("meta[name=twitter:image:src]").first() ?? html.head()!.select("meta[property=twitter:image:src]").first() ?? html.head()!.select("meta[name=twitter:image]").first() ?? html.head()!.select("meta[property=twitter:image]").first() ?? */html.head()!.select("meta[itemprop=image]").first() ?? html.head()!.select("meta[property=og:logo]").first() ?? html.head()!.select("meta[itemprop=logo]").first() ?? html.head()!.select("img[itemprop=logo]").first() ?? nil
+            
+            if(htmlMetaTitle != nil) {
+                webTitle = try htmlMetaDescription!.attr("content")
+            } else if (try html.title() != ""){
+                webTitle = try html.title()
+            } else {
+                webTitle = nil
+            }
+            
+            if(htmlMetaDescription != nil) {
+                webDescription = try htmlMetaDescription!.attr("content")
+            } else {
+                webDescription = nil
+            }
+            
+            if(htmlMetaThumbnail != nil) {
+                var webThumbnailLink = try htmlMetaThumbnail!.attr("content")
+                
+                if(webThumbnailLink.hasPrefix("/") || webThumbnailLink.hasPrefix("/") || !webThumbnailLink.hasPrefix("http")) {
+                    webThumbnailLink = "\(stringUrl)\(webThumbnailLink)"
+                }
+                
+                if let data = try? Data(contentsOf: URL(string: webThumbnailLink)!) {
+                    webThumbnail = data
+                    saveLink(url: url!, title: webTitle, description: webDescription, thumbnail: webThumbnail)
+                }
+                
+            } else {
+                webThumbnail = nil
+            }
+            
+        } catch Exception.Error(let type, let message) {
+            print(message)
+        } catch {
+            print("error")
+        }
+        
+    }
     
 }

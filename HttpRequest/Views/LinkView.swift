@@ -18,16 +18,17 @@ struct LinkView: View {
             VStack(spacing: 24) {
                 ForEach(linkViewModel.links, id: \.self) { link in
                     HStack{
-                        Image(uiImage: UIImage(data: (link.thumbnail ?? UIImage(named: "test2")?.pngData())!)!)
+//                        UIImage(named: "test2")?.pngData())!
+                        Image(uiImage: UIImage(data: link.thumbnail!)!)
                             .resizable()
                             .scaledToFill()
                             .clipped()
                             .frame(width: 120)
                         
                         VStack(alignment: .leading) {
-                            Text(link.title!)
+                            Text(link.title ?? "title is nil!")
                                 .font(.subheadline)
-                            Text(link.desc!)
+                            Text(link.desc ?? "description is nil!")
                                 .font(.caption)
                                 .foregroundStyle(.gray)
                             Text(link.url!.absoluteString)

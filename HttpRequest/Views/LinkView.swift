@@ -19,7 +19,7 @@ struct LinkView: View {
                 ForEach(linkViewModel.links, id: \.self) { link in
                     HStack{
 //                        UIImage(named: "test2")?.pngData())!
-                        Image(uiImage: UIImage(data: link.thumbnail!)!)
+                        Image(uiImage: ((link.thumbnail != nil) ? UIImage(data: link.thumbnail!)! : UIImage(named: "link"))!)
                             .resizable()
                             .scaledToFill()
                             .clipped()
@@ -69,7 +69,7 @@ struct LinkView: View {
                     Button {
                         Task {
                             if(inputLink != "") {
-                                await linkViewModel.addLink(stringUrl: inputLink)
+                                await linkViewModel.addLink(urlString: inputLink)
                             } else {
                                 inputLinkFocused = true
                             }

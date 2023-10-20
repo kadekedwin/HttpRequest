@@ -50,7 +50,7 @@ class LinkViewModel: ObservableObject {
             let (data, _) = try await URLSession.shared.data(from: url)
             return String(data: data, encoding: .utf8)!
         } catch {
-            print("Failed to fetch data")
+            print("Failed to fetch web")
             return nil
         }
     }
@@ -73,8 +73,12 @@ class LinkViewModel: ObservableObject {
 //        task.resume()
 //    }
     
-    func addLink(stringUrl: String) async {
-        let url = URL(string: stringUrl)
+    func addLink(urlString: String) async {
+        let url = URL(string: urlString)
+        var webTitle: String?
+        var webDescription: String?
+        var webThumbnail: Data?
+        
         let webData = await fetchWeb(url: url!)
         
         if(webData == nil) {
@@ -82,16 +86,22 @@ class LinkViewModel: ObservableObject {
             return
         }
         
-        var webTitle: String?
-        var webDescription: String?
-        var webThumbnail: Data?
-        
         do {
             let html: Document = try SwiftSoup.parse(webData!)
             
-            let htmlMetaTitle = try html.head()!.select("meta[property=og:title]").first() ?? html.head()!.select("meta[name=twitter:title]").first() ?? html.head()!.select("meta[property=twitter:title]").first() ?? nil
-            let htmlMetaDescription = try html.head()!.select("meta[name=og:description]").first() ?? html.head()!.select("meta[name=twitter:description]").first() ?? html.head()!.select("meta[property=twitter:description]").first() ?? html.head()!.select("meta[name=description]").first() ?? html.head()!.select("meta[itemprop=description]").first() ?? nil
-            let htmlMetaThumbnail = try /*html.head()!.select("meta[property=og:image:secure_url]").first() ?? html.head()!.select("meta[property=og:image:url]").first() ?? html.head()!.select("meta[property=og:image]").first() ?? html.head()!.select("meta[name=twitter:image:src]").first() ?? html.head()!.select("meta[property=twitter:image:src]").first() ?? html.head()!.select("meta[name=twitter:image]").first() ?? html.head()!.select("meta[property=twitter:image]").first() ?? */html.head()!.select("meta[itemprop=image]").first() ?? html.head()!.select("meta[property=og:logo]").first() ?? html.head()!.select("meta[itemprop=logo]").first() ?? html.head()!.select("img[itemprop=logo]").first() ?? nil
+            let htmlMetaTitle: Element? = try html.head()!.select("meta[property=og:title]").first() ?? html.head()!.select("meta[name=twitter:title]").first() ?? html.head()!.select("meta[property=twitter:title]").first()
+            let htmlMetaDescription: Element? = try html.head()!.select("meta[name=og:description]").first() ?? html.head()!.select("meta[name=twitter:description]").first() ?? html.head()!.select("meta[property=twitter:description]").first() ?? html.head()!.select("meta[name=description]").first() ?? html.head()!.select("meta[itemprop=description]").first()
+            let htmlMetaThumbnail: Element? = try html.head()!.select("meta[property=og:image:secure_url]").first() ?? html.head()!.select("meta[property=og:image:url]").first() ?? html.head()!.select("meta[property=og:image]").first() ?? html.head()!.select("meta[name=twitter:image:src]").first() ?? html.head()!.select("meta[property=twitter:image:src]").first() ?? html.head()!.select("meta[name=twitter:image]").first() ?? html.head()!.select("meta[property=twitter:image]").first() ?? html.head()!.select("meta[itemprop=image]").first() ?? html.head()!.select("meta[property=og:logo]").first() ?? html.head()!.select("meta[itemprop=logo]").first() ?? html.head()!.select("img[itemprop=logo]").first()
+            
+            if(htmlMetaTitle != nil) {
+                print("htmlMetaTitle not empty")
+            }
+            if(htmlMetaThumbnail != nil) {
+                print("htmlMetaThumbnail not empty")
+            }
+            if(htmlMetaDescription != nil) {
+                print("htmlMetaDescription not empty")
+            }
             
             if(htmlMetaTitle != nil) {
                 webTitle = try htmlMetaDescription!.attr("content")
@@ -108,20 +118,24 @@ class LinkViewModel: ObservableObject {
             }
             
             if(htmlMetaThumbnail != nil) {
-                var webThumbnailLink = try htmlMetaThumbnail!.attr("content")
-                
-                if(webThumbnailLink.hasPrefix("/") || webThumbnailLink.hasPrefix("/") || !webThumbnailLink.hasPrefix("http")) {
-                    webThumbnailLink = "\(stringUrl)\(webThumbnailLink)"
+                var webThumbnailUrlString = try htmlMetaThumbnail!.attr("content")
+                if(webThumbnailUrlString.hasPrefix("/") || webThumbnailUrlString.hasPrefix("/") || !webThumbnailUrlString.hasPrefix("http")) {
+                    webThumbnailUrlString = "\(urlString)\(webThumbnailUrlString)"
                 }
                 
-                if let data = try? Data(contentsOf: URL(string: webThumbnailLink)!) {
-                    webThumbnail = data
-                    saveLink(url: url!, title: webTitle, description: webDescription, thumbnail: webThumbnail)
+                let webThumbnailUrl = URL(string: webThumbnailUrlString)
+                
+                webThumbnail = try? Data(contentsOf: webThumbnailUrl)
+                
+                if(webThumbnail != nil) {
+                    // cara agar webthumbnail bisa mendapatkan data image dari link engken?
                 }
                 
             } else {
                 webThumbnail = nil
             }
+            
+//            saveLink(url: url!, title: webTitle, description: webDescription, thumbnail: webThumbnail)
             
         } catch Exception.Error(let type, let message) {
             print(message)

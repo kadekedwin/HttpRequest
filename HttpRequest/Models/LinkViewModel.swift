@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import SwiftUI
+import UIKit
 import CoreData
 import SwiftSoup
 
@@ -45,6 +47,7 @@ class LinkViewModel: ObservableObject {
         
     }
     
+    
     func fetchWeb(url: URL) async -> String? {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
@@ -55,23 +58,26 @@ class LinkViewModel: ObservableObject {
         }
     }
     
-//    func fetchWebb(linkUrl: String, result: ((String) -> (Void))?) {
-//        let url = URL(string: linkUrl)
-//
-//        let task = URLSession.shared.dataTask(with: url!) {
-//            (data, response, error) in
-//
-//            if let error = error {
-//                print("Error: \(error)")
-//                return
-//            }
-//
-//            if let data = data {
-//                result!(String(data: data, encoding: .utf8)!)
-//            }
+    func test() {
+//        let task = URLSession.shared.dataTask(with: URL(string: "https://youtube.com")!) {(data, response, error) in
+//            guard let data = data else { return }
+//            print(String(data: data, encoding: .utf8)!)
 //        }
 //        task.resume()
-//    }
+        
+//        if let url = URL(string: "https://www.youtube.com") {
+//            do {
+//                let contents = try String(contentsOf: url)
+//                print(contents)
+//            } catch {
+//                print("in catch")
+//            }
+//        } else {
+//            print("bad url")
+//        }
+        
+        
+    }
     
     func addLink(urlString: String) async {
         let url = URL(string: urlString)
@@ -91,20 +97,27 @@ class LinkViewModel: ObservableObject {
             
             let htmlMetaTitle: Element? = try html.head()!.select("meta[property=og:title]").first() ?? html.head()!.select("meta[name=twitter:title]").first() ?? html.head()!.select("meta[property=twitter:title]").first()
             let htmlMetaDescription: Element? = try html.head()!.select("meta[name=og:description]").first() ?? html.head()!.select("meta[name=twitter:description]").first() ?? html.head()!.select("meta[property=twitter:description]").first() ?? html.head()!.select("meta[name=description]").first() ?? html.head()!.select("meta[itemprop=description]").first()
-            let htmlMetaThumbnail: Element? = try html.head()!.select("meta[property=og:image:secure_url]").first() ?? html.head()!.select("meta[property=og:image:url]").first() ?? html.head()!.select("meta[property=og:image]").first() ?? html.head()!.select("meta[name=twitter:image:src]").first() ?? html.head()!.select("meta[property=twitter:image:src]").first() ?? html.head()!.select("meta[name=twitter:image]").first() ?? html.head()!.select("meta[property=twitter:image]").first() ?? html.head()!.select("meta[itemprop=image]").first() ?? html.head()!.select("meta[property=og:logo]").first() ?? html.head()!.select("meta[itemprop=logo]").first() ?? html.head()!.select("img[itemprop=logo]").first()
-            
-            if(htmlMetaTitle != nil) {
-                print("htmlMetaTitle not empty")
-            }
-            if(htmlMetaThumbnail != nil) {
-                print("htmlMetaThumbnail not empty")
-            }
-            if(htmlMetaDescription != nil) {
-                print("htmlMetaDescription not empty")
+//            separate htmlmetathumbnail to 2 because its error if its to long
+            var htmlMetaThumbnail: Element? = try html.head()!.select("meta[property=og:image:secure_url]").first() ?? html.head()!.select("meta[property=og:image:url]").first() ?? html.head()!.select("meta[property=og:image]").first() ?? html.head()!.select("meta[name=twitter:image:src]").first()
+            if(htmlMetaThumbnail == nil) {
+                htmlMetaThumbnail = try html.head()!.select("meta[property=twitter:image:src]").first() ?? html.head()!.select("meta[name=twitter:image]").first() ?? html.head()!.select("meta[property=twitter:image]").first() ?? html.head()!.select("meta[itemprop=image]").first() ?? html.head()!.select("meta[property=og:logo]").first() ?? html.head()!.select("meta[itemprop=logo]").first() ?? html.head()!.select("img[itemprop=logo]").first()
             }
             
+            test()
+            print(htmlMetaThumbnail)
+            
+            if(htmlMetaTitle == nil) {
+                print("htmlMetaTitle nil")
+            }
+            if(htmlMetaDescription == nil) {
+                print("htmlMetaDescription nil")
+            }
+            if(htmlMetaThumbnail == nil) {
+                print("htmlMetaThumbnail nil")
+            }
+            
             if(htmlMetaTitle != nil) {
-                webTitle = try htmlMetaDescription!.attr("content")
+                webTitle = try htmlMetaTitle!.attr("content")
             } else if (try html.title() != ""){
                 webTitle = try html.title()
             } else {
@@ -119,23 +132,19 @@ class LinkViewModel: ObservableObject {
             
             if(htmlMetaThumbnail != nil) {
                 var webThumbnailUrlString = try htmlMetaThumbnail!.attr("content")
-                if(webThumbnailUrlString.hasPrefix("/") || webThumbnailUrlString.hasPrefix("/") || !webThumbnailUrlString.hasPrefix("http")) {
+                if(webThumbnailUrlString.hasPrefix("/") || !webThumbnailUrlString.hasPrefix("http")) {
                     webThumbnailUrlString = "\(urlString)\(webThumbnailUrlString)"
                 }
                 
-                let webThumbnailUrl = URL(string: webThumbnailUrlString)
-                
-                webThumbnail = try? Data(contentsOf: webThumbnailUrl)
-                
-                if(webThumbnail != nil) {
-                    // cara agar webthumbnail bisa mendapatkan data image dari link engken?
+                if let webThumbnailUrl = URL(string: webThumbnailUrlString) {
+                    print(webThumbnailUrl)
+                    webThumbnail = try? Data(contentsOf: webThumbnailUrl)
                 }
-                
             } else {
                 webThumbnail = nil
             }
             
-//            saveLink(url: url!, title: webTitle, description: webDescription, thumbnail: webThumbnail)
+            saveLink(url: url!, title: webTitle, description: webDescription, thumbnail: webThumbnail)
             
         } catch Exception.Error(let type, let message) {
             print(message)

@@ -18,7 +18,6 @@ struct LinkView: View {
             VStack(spacing: 24) {
                 ForEach(linkViewModel.links, id: \.self) { link in
                     HStack{
-//                        UIImage(named: "test2")?.pngData())!
                         Image(uiImage: ((link.thumbnail != nil) ? UIImage(data: link.thumbnail!)! : UIImage(named: "link"))!)
                             .resizable()
                             .scaledToFill()

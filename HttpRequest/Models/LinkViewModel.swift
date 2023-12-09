@@ -10,6 +10,7 @@ import SwiftUI
 import UIKit
 import CoreData
 import SwiftSoup
+import Alamofire
 
 class LinkViewModel: ObservableObject {
     private var viewContext: NSManagedObjectContext
@@ -48,35 +49,30 @@ class LinkViewModel: ObservableObject {
     }
     
     
-    func fetchWeb(url: URL) async -> String? {
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return String(data: data, encoding: .utf8)!
-        } catch {
-            print("Failed to fetch web")
-            return nil
-        }
-    }
+//    func fetchWeb(url: URL) async -> String? {
+//        do {
+//            let (data, _) = try await URLSession.shared.data(from: url)
+//            return String(data: data, encoding: .utf8)!
+//        } catch {
+//            print("Failed to fetch web")
+//            return nil
+//        }
+//    }
     
-    func test() {
-//        let task = URLSession.shared.dataTask(with: URL(string: "https://youtube.com")!) {(data, response, error) in
-//            guard let data = data else { return }
-//            print(String(data: data, encoding: .utf8)!)
-//        }
-//        task.resume()
-        
-//        if let url = URL(string: "https://www.youtube.com") {
-//            do {
-//                let contents = try String(contentsOf: url)
-//                print(contents)
-//            } catch {
-//                print("in catch")
-//            }
-//        } else {
-//            print("bad url")
-//        }
-        
-        
+    func fetchWeb(url: URL) async throws -> String? {
+        try await withUnsafeThrowingContinuation { continuation in
+            AF.request(url).responseData { response in
+                if let data = response.data {
+                    continuation.resume(returning: String(data: data, encoding: .utf8)!)
+                    return
+                }
+                if let err = response.error {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                fatalError("Error while doing url request")
+            }
+        }
     }
     
     func addLink(urlString: String) async {
@@ -85,12 +81,21 @@ class LinkViewModel: ObservableObject {
         var webDescription: String?
         var webThumbnail: Data?
         
-        let webData = await fetchWeb(url: url!)
+//        let webData = await fetchWeb(url: url!)
+//        if(webData == nil) {
+//            print("invalid link!")
+//            return
+//        }
         
-        if(webData == nil) {
-            print("invalid link!")
+        var webData: String?
+        do {
+            webData = try await fetchWeb(url: url!)
+        } catch {
+            print("Failed to fetch web")
+            print(error)
             return
         }
+        
         
         do {
             let html: Document = try SwiftSoup.parse(webData!)
@@ -102,9 +107,6 @@ class LinkViewModel: ObservableObject {
             if(htmlMetaThumbnail == nil) {
                 htmlMetaThumbnail = try html.head()!.select("meta[property=twitter:image:src]").first() ?? html.head()!.select("meta[name=twitter:image]").first() ?? html.head()!.select("meta[property=twitter:image]").first() ?? html.head()!.select("meta[itemprop=image]").first() ?? html.head()!.select("meta[property=og:logo]").first() ?? html.head()!.select("meta[itemprop=logo]").first() ?? html.head()!.select("img[itemprop=logo]").first()
             }
-            
-            test()
-            print(htmlMetaThumbnail)
             
             if(htmlMetaTitle == nil) {
                 print("htmlMetaTitle nil")
@@ -137,7 +139,6 @@ class LinkViewModel: ObservableObject {
                 }
                 
                 if let webThumbnailUrl = URL(string: webThumbnailUrlString) {
-                    print(webThumbnailUrl)
                     webThumbnail = try? Data(contentsOf: webThumbnailUrl)
                 }
             } else {
@@ -154,4 +155,39 @@ class LinkViewModel: ObservableObject {
         
     }
     
+}
+
+
+
+
+enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
+    case delete = "DELETE"
+    case put = "PUT"
+}
+
+protocol URLRequestProtocol {
+    var url: URL { get }
+    var body: Data? { get }
+    var method: HTTPMethod { get }
+    var headers: [String: String]? { get }
+    var urlRequest: URLRequest { get }
+}
+
+extension URLRequestProtocol {
+    var urlRequest: URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        
+        if let body = body {
+            request.httpBody = body
+        }
+        
+        headers?.forEach { (key, value) in
+            request.addValue(value, forHTTPHeaderField: key)
+        }
+        
+        return request
+    }
 }

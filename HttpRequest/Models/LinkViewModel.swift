@@ -11,6 +11,7 @@ import UIKit
 import CoreData
 import SwiftSoup
 import Alamofire
+import OpenGraphReader
 
 class LinkViewModel: ObservableObject {
     private var viewContext: NSManagedObjectContext
@@ -81,6 +82,9 @@ class LinkViewModel: ObservableObject {
         var webDescription: String?
         var webThumbnail: Data?
         
+//        test!
+        await test(url!)
+        
 //        let webData = await fetchWeb(url: url!)
 //        if(webData == nil) {
 //            print("invalid link!")
@@ -100,23 +104,45 @@ class LinkViewModel: ObservableObject {
         do {
             let html: Document = try SwiftSoup.parse(webData!)
             
-            let htmlMetaTitle: Element? = try html.head()!.select("meta[property=og:title]").first() ?? html.head()!.select("meta[name=twitter:title]").first() ?? html.head()!.select("meta[property=twitter:title]").first()
-            let htmlMetaDescription: Element? = try html.head()!.select("meta[name=og:description]").first() ?? html.head()!.select("meta[name=twitter:description]").first() ?? html.head()!.select("meta[property=twitter:description]").first() ?? html.head()!.select("meta[name=description]").first() ?? html.head()!.select("meta[itemprop=description]").first()
+            let htmlMetaTitle: Element? = try 
+            html.head()!.select("meta[property=og:title]").first() ??
+            html.head()!.select("meta[property=twitter:title]").first() ??
+            html.head()!.select("meta[name=twitter:title]").first()
+            
+            let htmlMetaDescription: Element? = try 
+            html.head()!.select("meta[property=twitter:description]").first() ??
+            html.head()!.select("meta[itemprop=description]").first() ??
+            html.head()!.select("meta[name=og:description]").first() ??
+            html.head()!.select("meta[name=description]").first() ??
+            html.head()!.select("meta[name=twitter:description]").first()
+            
 //            separate htmlmetathumbnail to 2 because its error if its to long
-            var htmlMetaThumbnail: Element? = try html.head()!.select("meta[property=og:image:secure_url]").first() ?? html.head()!.select("meta[property=og:image:url]").first() ?? html.head()!.select("meta[property=og:image]").first() ?? html.head()!.select("meta[name=twitter:image:src]").first()
+            var htmlMetaThumbnail: Element? = try 
+            html.head()!.select("meta[property=og:image]").first() ??
+            html.head()!.select("meta[property=og:image:url]").first() ??
+            html.head()!.select("meta[property=og:image:secure_url]").first() ??
+            html.head()!.select("meta[property=twitter:image:src]").first() ??
+            html.head()!.select("meta[property=twitter:image]").first() ??
+            html.head()!.select("meta[property=og:logo]").first()
+            
             if(htmlMetaThumbnail == nil) {
-                htmlMetaThumbnail = try html.head()!.select("meta[property=twitter:image:src]").first() ?? html.head()!.select("meta[name=twitter:image]").first() ?? html.head()!.select("meta[property=twitter:image]").first() ?? html.head()!.select("meta[itemprop=image]").first() ?? html.head()!.select("meta[property=og:logo]").first() ?? html.head()!.select("meta[itemprop=logo]").first() ?? html.head()!.select("img[itemprop=logo]").first()
+                htmlMetaThumbnail = try
+                html.head()!.select("meta[itemprop=image]").first() ??
+                html.head()!.select("meta[itemprop=logo]").first() ??
+                html.head()!.select("img[itemprop=logo]").first() ??
+                html.head()!.select("meta[name=twitter:image]").first() ??
+                html.head()!.select("meta[name=twitter:image:src]").first()
             }
             
-            if(htmlMetaTitle == nil) {
-                print("htmlMetaTitle nil")
-            }
-            if(htmlMetaDescription == nil) {
-                print("htmlMetaDescription nil")
-            }
-            if(htmlMetaThumbnail == nil) {
-                print("htmlMetaThumbnail nil")
-            }
+//            if(htmlMetaTitle == nil) {
+//                print("htmlMetaTitle nil")
+//            }
+//            if(htmlMetaDescription == nil) {
+//                print("htmlMetaDescription nil")
+//            }
+//            if(htmlMetaThumbnail == nil) {
+//                print("htmlMetaThumbnail nil")
+//            }
             
             if(htmlMetaTitle != nil) {
                 webTitle = try htmlMetaTitle!.attr("content")
@@ -155,39 +181,19 @@ class LinkViewModel: ObservableObject {
         
     }
     
-}
-
-
-
-
-enum HTTPMethod: String {
-    case get = "GET"
-    case post = "POST"
-    case delete = "DELETE"
-    case put = "PUT"
-}
-
-protocol URLRequestProtocol {
-    var url: URL { get }
-    var body: Data? { get }
-    var method: HTTPMethod { get }
-    var headers: [String: String]? { get }
-    var urlRequest: URLRequest { get }
-}
-
-extension URLRequestProtocol {
-    var urlRequest: URLRequest {
-        var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
-        
-        if let body = body {
-            request.httpBody = body
+    
+    func test(_ url: URL) async {
+        let reader = OpenGraphReader()
+        do {
+            let openGraphResponse = try await reader.fetch(url: url)
+            // Access OpenGraph properties using openGraphResponse properties
+            print("Title: \(openGraphResponse.title ?? nil)")
+            print("Description: \(openGraphResponse.description ?? nil)")
+            print("ImageURL: \(openGraphResponse.imageURL ?? nil)")
+            // ...
+        } catch {
+            print("Error: \(error)")
         }
-        
-        headers?.forEach { (key, value) in
-            request.addValue(value, forHTTPHeaderField: key)
-        }
-        
-        return request
     }
+    
 }

@@ -10,6 +10,7 @@
 		E80871342ADB9F0200E66660 /* LinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80871332ADB9F0200E66660 /* LinkViewModel.swift */; };
 		E80871362ADB9F1000E66660 /* LinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80871352ADB9F1000E66660 /* LinkView.swift */; };
 		E84B2A442ADD671700DF0BCA /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E84B2A432ADD671700DF0BCA /* SwiftSoup */; };
+		E89DF8342B24B24900F98170 /* OpenGraphReader in Frameworks */ = {isa = PBXBuildFile; productRef = E89DF8332B24B24900F98170 /* OpenGraphReader */; };
 		E8A8086D2B2440BD00B3CE39 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = E8A8086C2B2440BD00B3CE39 /* Alamofire */; };
 		E8BB70902ADAE15B005385D4 /* HttpRequestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BB708F2ADAE15B005385D4 /* HttpRequestApp.swift */; };
 		E8BB70942ADAE15C005385D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8BB70932ADAE15C005385D4 /* Assets.xcassets */; };
@@ -37,6 +38,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E84B2A442ADD671700DF0BCA /* SwiftSoup in Frameworks */,
+				E89DF8342B24B24900F98170 /* OpenGraphReader in Frameworks */,
 				E8A8086D2B2440BD00B3CE39 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -118,6 +120,7 @@
 			packageProductDependencies = (
 				E84B2A432ADD671700DF0BCA /* SwiftSoup */,
 				E8A8086C2B2440BD00B3CE39 /* Alamofire */,
+				E89DF8332B24B24900F98170 /* OpenGraphReader */,
 			);
 			productName = HttpRequest;
 			productReference = E8BB708C2ADAE15B005385D4 /* HttpRequest.app */;
@@ -150,6 +153,7 @@
 			packageReferences = (
 				E84B2A422ADD671700DF0BCA /* XCRemoteSwiftPackageReference "swiftsoup" */,
 				E8A8086B2B2440BD00B3CE39 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				E89DF8322B24B24900F98170 /* XCRemoteSwiftPackageReference "OpenGraphReader" */,
 			);
 			productRefGroup = E8BB708D2ADAE15B005385D4 /* Products */;
 			projectDirPath = "";
@@ -400,6 +404,14 @@
 				minimumVersion = 2.6.1;
 			};
 		};
+		E89DF8322B24B24900F98170 /* XCRemoteSwiftPackageReference "OpenGraphReader" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pzmudzinski/OpenGraphReader.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
 		E8A8086B2B2440BD00B3CE39 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire";
@@ -415,6 +427,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E84B2A422ADD671700DF0BCA /* XCRemoteSwiftPackageReference "swiftsoup" */;
 			productName = SwiftSoup;
+		};
+		E89DF8332B24B24900F98170 /* OpenGraphReader */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E89DF8322B24B24900F98170 /* XCRemoteSwiftPackageReference "OpenGraphReader" */;
+			productName = OpenGraphReader;
 		};
 		E8A8086C2B2440BD00B3CE39 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
